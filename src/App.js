@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
+import logo from './logo.png'; // Adjust the path based on your logo's location
 
 function App() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -74,26 +75,10 @@ function App() {
     
     switch(step) {
       case 1:
-        if (!formData.fullName) {
-          newErrors.fullName = 'Full name is required';
-        } else if (!validationPatterns.name.test(formData.fullName)) {
-          newErrors.fullName = 'Please enter a valid name (2-50 characters, letters only)';
-        }
-        if (!formData.dateOfBirth) {
-          newErrors.dateOfBirth = 'Date of birth is required';
-        } else {
-          const dob = new Date(formData.dateOfBirth);
-          const today = new Date();
-          if (dob >= today) {
-            newErrors.dateOfBirth = 'Date of birth must be in the past';
-          }
-        }
-        if (!formData.gender) {
-          newErrors.gender = 'Gender is required';
-        }
-        if (!formData.identificationNumber) {
-          newErrors.identificationNumber = 'ID number is required';
-        }
+        if (!formData.fullName) newErrors.fullName = 'Full name is required';
+        if (!formData.dateOfBirth) newErrors.dateOfBirth = 'Date of birth is required';
+        if (!formData.gender) newErrors.gender = 'Gender is required';
+        if (!formData.identificationNumber) newErrors.identificationNumber = 'ID number is required';
         break;
 
       case 2:
@@ -165,11 +150,7 @@ function App() {
     }
 
     setErrors(newErrors);
-    if (Object.keys(newErrors).length > 0) {
-      setShowError(true);
-      // Auto-hide error message after 5 seconds
-      setTimeout(() => setShowError(false), 5000);
-    }
+    setShowError(Object.keys(newErrors).length > 0);
     return Object.keys(newErrors).length === 0;
   };
 
@@ -355,18 +336,21 @@ function App() {
   const handleSubmit = async () => {
     if (validateStep(currentStep)) {
       try {
-        // Show loading state
         setIsSubmitted(true);
         
-        // Simulate API call (remove this in production and replace with actual API call)
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        const response = await fetch('https://your-api-domain.com/api/submit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData)
+        });
 
-        // Show thank you message
+        if (!response.ok) {
+          throw new Error('Submission failed');
+        }
+
         setShowThankYou(true);
-
-        // Log the form data (replace with actual API call in production)
-        console.log('Form submitted successfully:', formData);
-
       } catch (error) {
         console.error('Submission error:', error);
         setIsSubmitted(false);
@@ -712,133 +696,233 @@ function App() {
   );
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-white p-4 relative overflow-hidden">
-      {/* Error Toast Notification */}
+    <div className="min-h-screen w-full flex items-start justify-center bg-white p-4 pt-8">
+      {/* Error Popup */}
       {showError && Object.keys(errors).length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: -100 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -100 }}
-          className="fixed top-4 right-4 z-50 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-lg"
-        >
-          <div className="flex items-start">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">Please correct the following errors:</h3>
-              <div className="mt-2 text-sm text-red-700">
-                <ul className="list-disc pl-5 space-y-1">
+        <div className="fixed inset-0 flex items-start justify-center z-50 pt-6 pointer-events-none">
+          <motion.div
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -50 }}
+            className="bg-white rounded-lg shadow-2xl p-6 mx-4 w-full max-w-md pointer-events-auto"
+            style={{
+              background: 'linear-gradient(to right, #FFF5F5, #FFF)',
+              borderRadius: '12px'
+            }}
+          >
+            <div className="flex items-start space-x-4">
+              {/* Error Icon */}
+              <div className="flex-shrink-0">
+                <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
+                  <svg 
+                    className="h-5 w-5 text-red-500" 
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Error Content */}
+              <div className="flex-1">
+                <h3 className="text-xl font-semibold text-red-800 mb-2">
+                  Please correct the following errors:
+                </h3>
+                <ul className="space-y-2">
                   {Object.values(errors).map((error, index) => (
-                    <li key={index}>{error}</li>
+                    <li 
+                      key={index}
+                      className="text-red-700 flex items-center"
+                    >
+                      <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                      {error}
+                    </li>
                   ))}
                 </ul>
               </div>
-            </div>
-          </div>
-        </motion.div>
-      )}
 
-      {/* Professional background pattern overlay */}
-      <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:20px_20px]" />
-      
-      {/* Subtle gradient orbs for depth */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500/10 rounded-full filter blur-3xl" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full filter blur-3xl" />
-
-      {/* Logo Section */}
-      <div className="absolute top-4 left-4 md:left-8 z-10">
-        <img src="/logo.png" alt="Huduma Center Logo" className="h-16 md:h-20" />
-      </div>
-
-      <div className="relative w-full max-w-4xl mx-auto mt-20 z-10">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="rounded-3xl shadow-2xl overflow-hidden"
-        >
-          {/* Header Section */}
-          <div className="relative p-8 bg-gradient-to-r from-[#1B3168] to-[#2A4580]">
-            <div className="relative z-10">
-              <motion.h1 
-                key={currentStep}
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-3xl md:text-4xl font-bold text-white text-center mb-4"
+              {/* Close Button */}
+              <button
+                onClick={() => setShowError(false)}
+                className="flex-shrink-0 text-gray-400 hover:text-gray-500 
+                         transition-colors duration-150 focus:outline-none"
               >
-                {getStepTitle()}
-              </motion.h1>
-              <div className="flex items-center justify-center gap-2">
-                <span className="px-6 py-2 bg-[#4CAF50] rounded-full text-white text-sm font-medium shadow-lg">
-                  Step {currentStep} of {totalSteps}
-                </span>
-              </div>
-            </div>
-            <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-[#4CAF50] to-[#45a049]" />
-          </div>
-
-          {/* Form Content Section */}
-          <div className="p-8 md:p-10 space-y-8 bg-white">
-            <motion.div
-              key={currentStep}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-6"
-            >
-              {renderStepContent()}
-            </motion.div>
-
-            {/* Navigation Buttons */}
-            <div className="flex justify-between pt-6">
-              {currentStep > 1 && (
-                <motion.button 
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setCurrentStep(currentStep - 1)}
-                  className="px-8 py-4 bg-gray-50 hover:bg-gray-100 
-                           text-[#1B3168] font-semibold rounded-2xl
-                           transition-all duration-300 shadow-sm
-                           hover:shadow-md border border-gray-200"
+                <svg 
+                  className="h-5 w-5" 
+                  viewBox="0 0 20 20" 
+                  fill="currentColor"
                 >
-                  Previous
-                </motion.button>
-              )}
-              <button 
-                onClick={handleContinue}
-                disabled={isSubmitted}
-                className={`px-8 py-3 bg-[#4CAF50] hover:bg-[#45a049] 
-                         text-white font-semibold rounded-xl
-                         transition-all duration-300 shadow-lg
-                         hover:shadow-xl disabled:opacity-50
-                         ${currentStep === 1 ? 'ml-auto' : ''}`}
-              >
-                {isSubmitted ? (
-                  <span className="flex items-center space-x-2">
-                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span>Submitting...</span>
-                  </span>
-                ) : currentStep === totalSteps ? (
-                  'Submit'
-                ) : (
-                  'Continue'
-                )}
+                  <path 
+                    fillRule="evenodd" 
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" 
+                    clipRule="evenodd" 
+                  />
+                </svg>
               </button>
             </div>
+          </motion.div>
+        </div>
+      )}
+
+      <div className="relative w-full max-w-4xl mx-auto mb-8">
+        {/* Logo Section */}
+        <div className="flex flex-col items-center justify-center space-y-4 mb-8">
+          <img 
+            src={logo} 
+            alt="Huduma Center Logo" 
+            className="h-16 md:h-20 lg:h-24 w-auto object-contain"
+          />
+          <h1 className="text-[#1B3168] text-xl md:text-2xl lg:text-3xl font-semibold text-center">
+            Student Registration
+          </h1>
+        </div>
+
+        {/* Form Card with Enhanced Shadow */}
+        <div className="rounded-2xl overflow-hidden
+                      shadow-[rgba(0,_0,_0,_0.15)_0px_20px_60px_-10px,_rgba(27,_49,_104,_0.15)_0px_12px_36px_-18px]
+                      hover:shadow-[rgba(0,_0,_0,_0.2)_0px_25px_70px_-12px,_rgba(27,_49,_104,_0.2)_0px_15px_40px_-20px]
+                      transition-shadow duration-500 ease-in-out
+                      transform hover:-translate-y-1
+                      bg-white
+                      relative">
+          {/* Decorative top glow */}
+          <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-3/4 h-10 bg-[#4CAF50] blur-3xl opacity-20"></div>
+          
+          {/* Progress Steps */}
+          <div className="p-6 bg-gradient-to-r from-[#1B3168] to-[#2A4580]
+                        relative z-10">
+            <div className="flex items-center justify-between gap-2">
+              {Array.from({ length: totalSteps }, (_, index) => (
+                <div
+                  key={index}
+                  className={`flex-1 h-2 rounded-full ${
+                    index + 1 <= currentStep
+                      ? 'bg-[#4CAF50]'
+                      : 'bg-gray-200'
+                  }`}
+                />
+              ))}
+            </div>
+            <div className="mt-4 text-center">
+              <h2 className="text-white text-lg md:text-xl font-medium">
+                {getStepTitle()}
+              </h2>
+            </div>
           </div>
 
-          {/* Footer Section */}
-          <div className="bg-gradient-to-r from-[#4CAF50] to-[#45a049] p-6 text-white text-center">
-            <p className="font-medium text-white/90">Contact Us</p>
-            <p className="text-sm text-white/80 mt-1">info@hudumacenter.com | 206-460-9022</p>
-            <p className="text-sm text-white/80">30821 Pacific Hwy S, Federal Way, WA 98003</p>
+          {/* Form Content */}
+          <div className="p-6 md:p-8 bg-white relative z-10">
+            {showThankYou ? (
+              <ThankYouMessage />
+            ) : (
+              <>
+                {renderStepContent()}
+                {/* Navigation Buttons */}
+                <div className="flex justify-between pt-6">
+                  {currentStep > 1 && (
+                    <button 
+                      onClick={() => setCurrentStep(currentStep - 1)}
+                      className="px-6 py-3 
+                                bg-[#1B3168] 
+                                hover:bg-[#2A4580] 
+                                text-white 
+                                font-semibold 
+                                rounded-xl
+                                transition-all 
+                                duration-300 
+                                shadow-lg
+                                hover:shadow-xl
+                                flex items-center 
+                                space-x-2"
+                      disabled={isSubmitted}
+                    >
+                      <svg 
+                        className="w-5 h-5" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round" 
+                          strokeWidth={2} 
+                          d="M15 19l-7-7 7-7"
+                        />
+                      </svg>
+                      <span>Previous</span>
+                    </button>
+                  )}
+                  
+                  <button 
+                    onClick={handleContinue}
+                    className={`px-8 py-3 
+                              bg-[#4CAF50] 
+                              hover:bg-[#45a049] 
+                              text-white 
+                              font-semibold 
+                              rounded-xl
+                              transition-all 
+                              duration-300 
+                              shadow-lg
+                              hover:shadow-xl
+                              flex items-center 
+                              space-x-2
+                              ${currentStep === 1 ? 'ml-auto' : ''}`}
+                    disabled={isSubmitted}
+                  >
+                    {isSubmitted ? (
+                      <span className="flex items-center space-x-2">
+                        <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Submitting...</span>
+                      </span>
+                    ) : (
+                      <>
+                        <span>{currentStep === totalSteps ? 'Submit' : 'Continue'}</span>
+                        {currentStep !== totalSteps && (
+                          <svg 
+                            className="w-5 h-5" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                          >
+                            <path 
+                              strokeLinecap="round" 
+                              strokeLinejoin="round" 
+                              strokeWidth={2} 
+                              d="M9 5l7 7-7 7"
+                            />
+                          </svg>
+                        )}
+                      </>
+                    )}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
-        </motion.div>
+
+          {/* Footer */}
+          <div className="bg-gradient-to-r from-[#4CAF50] to-[#45a049] 
+                        p-4 text-white text-center relative z-10">
+            <p className="text-sm">
+              © 2024 Huduma Center. All rights reserved.
+            </p>
+          </div>
+
+          {/* Decorative bottom shadow - reduced spread */}
+          <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-4/5 h-4 bg-black/20 blur-xl rounded-full"></div>
+        </div>
+
+        {/* Adjusted ambient glow */}
+        <div className="absolute -inset-20 bg-gradient-to-r from-[#1B3168]/5 via-[#4CAF50]/5 to-[#1B3168]/5 blur-3xl -z-10 rounded-full"></div>
       </div>
     </div>
   );
