@@ -1,3 +1,11 @@
+/* Reset default styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* Base styles */
 .form-container {
   width: 100%;
@@ -8,43 +16,56 @@
 
 /* Mobile styles */
 @media screen and (max-width: 768px) {
+  /* Lock body scroll */
+  html, 
+  body {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    touch-action: none;
+    -webkit-overflow-scrolling: none;
+    overscroll-behavior: none;
+  }
+
+  /* Container styles */
   .form-container {
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
     width: 100vw;
     height: 100vh;
     max-width: 100%;
+    max-height: 100%;
     margin: 0;
     padding: 16px;
     overflow-y: auto;
     overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
     background-color: #fff;
-    z-index: 1000;
-    touch-action: none;
+    z-index: 9999;
+    overscroll-behavior: contain;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
   }
 
-  /* Prevent any movement */
-  html, body {
-    overflow: hidden;
-    position: fixed;
+  /* Form content wrapper */
+  .form-content {
     width: 100%;
-    height: 100%;
-    touch-action: none;
-    -webkit-overflow-scrolling: none;
+    height: auto;
+    min-height: 100%;
+    padding-bottom: 20px;
   }
 
-  /* Form elements */
+  /* Form fields */
   .form-field {
     width: 100%;
     margin-bottom: 16px;
     transform: translateZ(0);
   }
 
-  /* Input fields including date picker */
+  /* Input styles */
   input,
   select,
   textarea,
@@ -61,26 +82,20 @@
     appearance: none;
   }
 
-  /* Date picker specific styles */
+  /* Date picker styles */
   .react-datepicker-wrapper {
     width: 100% !important;
-    display: block !important;
   }
 
   .react-datepicker__input-container {
     width: 100% !important;
-    display: block !important;
   }
 
   .react-datepicker-popper {
-    width: 100% !important;
-    max-width: calc(100vw - 32px) !important;
-    transform: none !important;
+    width: calc(100vw - 32px) !important;
     position: fixed !important;
-    top: auto !important;
     left: 16px !important;
-    right: 16px !important;
-    z-index: 1001 !important;
+    z-index: 10000 !important;
   }
 
   /* Submit button */
@@ -93,7 +108,6 @@
     background-color: #007bff;
     color: white;
     border: none;
-    cursor: pointer;
   }
 }
 

@@ -6,15 +6,8 @@ import './styles.css';
 const RegistrationForm = () => {
   return (
     <div className="form-container">
-      {/* Your existing form content */}
-      <div className="form-field">
-        <DatePicker
-          selected={date}
-          onChange={(date) => setDate(date)}
-          dateFormat="dd/MM/yyyy"
-          placeholderText="Select Date"
-          className="date-picker-input"
-        />
+      <div className="form-content">
+        {/* Your existing form fields */}
       </div>
     </div>
   );
