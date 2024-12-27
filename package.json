@@ -2,19 +2,14 @@
   "name": "registration-form",
   "version": "1.0.0",
   "private": true,
-  "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1"
-  },
   "scripts": {
     "start": "react-scripts start",
-    "build": "CI=false react-scripts build",
+    "build": "chmod +x ./build.sh && ./build.sh",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
   "engines": {
-    "node": "18.x",
-    "npm": "9.x"
+    "node": "16.x",
+    "npm": "8.x"
   }
 }
