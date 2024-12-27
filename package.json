@@ -12,7 +12,7 @@
   "scripts": {
     "dev": "react-scripts start",
     "start": "react-scripts start",
-    "build": "set \"CI=false\" && react-scripts build",
+    "build": "node vercel-build.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
